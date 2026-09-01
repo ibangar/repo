@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(hf --version)",
+      "Bash(hf account status:*)",
+      "Bash(hf auth token:*)",
+      "Bash(hf model list:*)",
+      "Bash(hf model get:*)",
+      "Bash(hf preset list:*)",
+      "Bash(hf preset get:*)",
+      "Bash(hf workflow list:*)",
+      "Bash(hf workflow get:*)",
+      "Bash(hf voices list:*)",
+      "Bash(hf workspace list:*)",
+      "Bash(hf workspace status:*)",
+      "Bash(hf generate cost:*)",
+      "Bash(hf generate list:*)",
+      "Bash(hf generate get:*)",
+      "Bash(hf generate wait:*)",
+      "Bash(hf upload list:*)"
+    ]
+  }
+}

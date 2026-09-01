@@ -1,0 +1,12 @@
+# Higgsfield CLI credentials live in ~/.config/higgsfield/, never in the repo.
+# These patterns are belt-and-braces in case anything is ever copied in.
+credentials.json
+dev-credentials.json
+.higgsfield/
+
+# Generated media. Keep the folder, ignore the large binaries by default —
+# remove or narrow this if you want to version specific assets.
+assets/*
+!assets/.gitkeep
+
+.DS_Store
