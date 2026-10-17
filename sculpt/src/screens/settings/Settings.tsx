@@ -48,7 +48,7 @@ export default function Settings() {
     await db.delete()
     try { localStorage.removeItem('sculpt.passcodeLength'); localStorage.removeItem('sculpt.installHintDismissed') } catch { /* ignore */ }
     await db.open()
-    window.location.href = '/'
+    window.location.href = import.meta.env.BASE_URL + (import.meta.env.VITE_TARGET === 'artifact' ? '#/' : '')
   }
 
   return (

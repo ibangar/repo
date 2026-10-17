@@ -1,5 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+
+const Router = import.meta.env.VITE_TARGET === 'artifact' ? HashRouter : BrowserRouter
 import { Nav } from './components/Nav'
 import { useSettings } from './hooks/useSettings'
 import { setHaptics } from './lib/haptics'
@@ -70,8 +72,8 @@ function Shell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Shell />
-    </BrowserRouter>
+    </Router>
   )
 }

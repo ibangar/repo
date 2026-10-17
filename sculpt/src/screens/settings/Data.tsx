@@ -62,7 +62,7 @@ export default function DataScreen() {
     const r = await importFile(f, mode, setProgress)
     setReport(r); haptic.done(); sound.complete()
     refreshStorage()
-    setTimeout(() => { window.location.href = '/' }, 2200)
+    setTimeout(() => { window.location.href = import.meta.env.BASE_URL + (import.meta.env.VITE_TARGET === 'artifact' ? '#/' : '') }, 2200)
   })
 
   const persist = async () => {

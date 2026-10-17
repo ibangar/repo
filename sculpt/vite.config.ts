@@ -1,11 +1,17 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+
+// VITE_TARGET=artifact builds a self-contained copy for hosting under a sub-path:
+// relative asset URLs, hash routing, no service worker.
+const artifact = process.env.VITE_TARGET === 'artifact'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: artifact ? './' : '/',
   plugins: [
     react(),
     VitePWA({
+      disable: artifact,
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png', 'icons/*.svg'],
       manifest: {
@@ -32,5 +38,5 @@ export default defineConfig({
       devOptions: { enabled: false },
     }),
   ],
-  build: { target: 'es2020', sourcemap: false },
+  build: { target: 'es2020', sourcemap: false, outDir: artifact ? 'dist-artifact' : 'dist' },
 })
