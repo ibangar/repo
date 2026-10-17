@@ -5,7 +5,8 @@ export function setSound(on: boolean) { enabled = on }
 function getCtx(): AudioContext | null {
   try {
     if (!ctx) ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
-    if (ctx.state === 'suspended') void ctx.resume()
+    // iOS reports a non-standard 'interrupted' state after screen lock / a call; anything that isn't running needs resume().
+    if (ctx.state !== 'running') ctx.resume().catch(() => { /* not allowed yet – next gesture will retry */ })
     return ctx
   } catch { return null }
 }

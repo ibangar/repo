@@ -78,7 +78,8 @@ export async function buildPhoto(src: CanvasImageSource, srcW: number, srcH: num
 export async function decodeFile(file: File): Promise<{ src: CanvasImageSource; width: number; height: number; release: () => void }> {
   if ('createImageBitmap' in window) {
     try {
-      const bmp = await createImageBitmap(file)
+      // Explicitly honour EXIF orientation – older Safari ignores it by default, so library uploads from an iPhone came in rotated.
+      const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' })
       return { src: bmp, width: bmp.width, height: bmp.height, release: () => bmp.close() }
     } catch { /* fall through to <img> */ }
   }

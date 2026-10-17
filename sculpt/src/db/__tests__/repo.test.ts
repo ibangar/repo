@@ -91,6 +91,19 @@ describe('full loop: calibrate → progress → deload', () => {
     expect(s.exercises.find(e => e.exerciseId === 'flatBbBench')!.calibration).toBe(true)
   })
 
+  it('startSession never creates a second active session', async () => {
+    const settings = await updateSettings({ onboarded: true, programStartDate: '2026-10-19' })
+    const program = await getProgram()
+    const first = await startSession('2026-10-19', settings, program)
+    const again = await startSession('2026-10-20', settings, program)
+    expect(again.id).toBe(first.id)
+    expect(await db.sessions.where('status').equals('active').count()).toBe(1)
+    await completeSession(first, settings)
+    const next = await startSession('2026-10-20', settings, program)
+    expect(next.id).not.toBe(first.id)
+    expect(next.dayIndex).toBe(1)
+  })
+
   it('skipped exercises and unlogged sets are ignored on completion', async () => {
     const settings = await getSettings()
     const program = await getProgram()

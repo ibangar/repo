@@ -56,8 +56,14 @@ export function prescribeCtx(settings: Settings): Omit<PrescribeContext, 'isDelo
   return { increments: settings.increments, units: settings.units, bodyweightKg: settings.bodyweightKg }
 }
 
-/** Create (and persist) today's session from the program + schedule. */
+/**
+ * Create (and persist) today's session from the program + schedule.
+ * If a session is already in progress it is returned instead – two 'active'
+ * rows would leave an orphan that Today keeps offering to "resume" forever.
+ */
 export async function startSession(date: string, settings: Settings, program: Program): Promise<WorkoutSession> {
+  const existing = await getActiveSession()
+  if (existing) return existing
   const info = scheduleFor(date, settings, program)
   const states = await getStates()
   const lastSessions = await lastCompletedSessionPerExercise(info.day.exercises.map(e => e.exerciseId))

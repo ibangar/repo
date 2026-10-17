@@ -82,8 +82,16 @@ export function Stepper({ value, onChange, step = 1, min = 0, max = 9999, decima
   useEffect(() => { if (!focused.current) setText(value == null ? '' : String(round(value, decimals))) }, [value, decimals])
   const commit = (raw: string) => {
     const n = parseFloat(raw.replace(',', '.'))
-    if (Number.isNaN(n)) { if (allowEmpty) onChange(null); return }
-    onChange(clamp(round(n, decimals), min, max))
+    if (Number.isNaN(n)) {
+      if (allowEmpty) { onChange(null); return }
+      // Not allowed to be empty: the value is unchanged, so re-show it instead of leaving the field blank.
+      setText(value == null ? '' : String(round(value, decimals)))
+      return
+    }
+    const next = clamp(round(n, decimals), min, max)
+    // Normalise what's shown (clamped / rounded) even when the parent value doesn't change.
+    setText(String(next))
+    onChange(next)
   }
   const bump = (d: number) => { haptic.tap(); const base = value ?? 0; onChange(clamp(round(base + d, decimals), min, max)) }
   return (

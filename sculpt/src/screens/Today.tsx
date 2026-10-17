@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/schema'
-import { getStates, lastCompletedSessionPerExercise, prescribeCtx, saveSession, startSession, updateSettings } from '../db/repo'
+import { getActiveSession, getStates, lastCompletedSessionPerExercise, prescribeCtx, saveSession, startSession, updateSettings } from '../db/repo'
 import type { ExerciseState, Program, ProgramDay, Settings, WorkoutSession } from '../db/types'
 import { getExercise } from '../data/exercises'
 import { buildSession, deloadSets } from '../engine/prescription'
@@ -144,6 +144,8 @@ export default function Today() {
     if (busy) return
     setBusy(true); primeAudio(); haptic.success()
     try {
+      // The live query may still be loading – never create a second active session.
+      if (await getActiveSession()) { setPickOpen(false); nav('/workout'); return }
       const d = program.days[dayIndex]
       const st = await getStates()
       const last = await lastCompletedSessionPerExercise(d.exercises.map(e => e.exerciseId))

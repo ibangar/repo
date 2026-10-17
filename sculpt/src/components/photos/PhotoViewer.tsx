@@ -19,12 +19,18 @@ export function PhotoViewer({ photos, index, onIndex, onClose }: { photos: Photo
   const photo = photos[index]
   const url = useObjectUrl(photo?.blob)
 
+  // Lock body scroll once for the viewer's lifetime. (Doing this in a deps-less effect re-captured
+  // `prev` on every render – after the nested delete Sheet closed it captured 'hidden', so closing the
+  // viewer left the Photos page unscrollable.)
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1) }
     window.addEventListener('keydown', onKey)
-    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey) }
+    return () => window.removeEventListener('keydown', onKey)
   })
 
   useEffect(() => { if (photos.length === 0) onClose(); else if (index > photos.length - 1) onIndex(photos.length - 1) }, [photos.length, index, onClose, onIndex])
