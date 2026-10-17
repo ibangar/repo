@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { Button, PageHeader, Pill, Segmented, Stepper, ToggleRow } from '../../components/ui'
 import { IconDownload, IconLock, IconRotate } from '../../components/ui/Icons'
 import { Group, Row, StackedRow, StepperRow, TextRow, ConfirmSheet, DayPicker, DAY_LABELS_LONG, fmtHour, StepperBox } from '../../components/settings/Rows'
-import { BodyweightStepper, HeightInput, IncrementFields } from '../../components/settings/BodyFields'
+import { BodyweightStepper, HeightInput, IncrementFields, INCREMENT_DEFAULTS } from '../../components/settings/BodyFields'
 import { ExercisePicker } from '../../components/settings/ExercisePicker'
 import { PasscodeSheet } from '../../components/settings/PasscodeSheet'
 import { InstallHint } from '../../components/settings/InstallHint'
 import { useProgram, useSettings, updateSettings } from '../../hooks/useSettings'
-import { resetCalibration } from '../../db/repo'
+import { resetCalibration, switchUnits } from '../../db/repo'
 import { db } from '../../db/schema'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { Settings as SettingsT, Units } from '../../db/types'
@@ -58,8 +58,8 @@ export default function Settings() {
       <div className="stack-lg stagger">
         <Group title="Profile">
           <TextRow label="Name" value={s.name} placeholder="Your name" onCommit={v => set({ name: v.trim() })} />
-          <StackedRow label="Units" hint="Display only – everything is stored in kilograms.">
-            <Segmented accent value={s.units} onChange={(u: Units) => set({ units: u })} options={[{ value: 'kg', label: 'Kilograms' }, { value: 'lb', label: 'Pounds' }]} />
+          <StackedRow label="Units" hint="Everything is stored in kilograms. Switching adopts that unit's plate jumps and re-rounds your working weights.">
+            <Segmented accent value={s.units} onChange={(u: Units) => { if (u !== s.units) void switchUnits(u, INCREMENT_DEFAULTS[u]) }} options={[{ value: 'kg', label: 'Kilograms' }, { value: 'lb', label: 'Pounds' }]} />
           </StackedRow>
           <div className="list-item" style={{ flexWrap: 'wrap' }}>
             <div className="grow" style={{ minWidth: 110 }}><div style={{ fontWeight: 700 }}>Bodyweight</div><div className="small">Latest weigh-in updates this too</div></div>

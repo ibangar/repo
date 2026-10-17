@@ -116,3 +116,19 @@ describe('full loop: calibrate → progress → deload', () => {
     expect((await db.exerciseStates.get(s.exercises[1].exerciseId))!.currentLoad).toBe(60)
   })
 })
+
+describe('switchUnits', () => {
+  beforeEach(reset)
+  it('adopts lb increments and re-rounds stored loads to real plates', async () => {
+    const { switchUnits } = await import('../repo')
+    await db.exerciseStates.put({ exerciseId: 'flatBbBench', loadMode: 'weight', currentLoad: 60, targetReps: 8, calibrated: true, consecutiveMisses: 0, bestE1rm: 80, bestLoad: 60, history: [], updatedAt: 0 })
+    const lbInc = { smallestPlateKg: 2.5 * 0.45359237, dumbbellStepKg: 5 * 0.45359237, cableStepKg: 5 * 0.45359237, kettlebellStepKg: 8 * 0.45359237, boxStepCm: 5.08 }
+    await switchUnits('lb', lbInc)
+    const s = await getSettings()
+    expect(s.units).toBe('lb')
+    const st = (await db.exerciseStates.get('flatBbBench'))!
+    const lb = st.currentLoad! / 0.45359237
+    expect(Math.abs(lb / 5 - Math.round(lb / 5))).toBeLessThan(1e-3) // multiple of 5 lb (kg stored to 3 dp)
+    expect(lb).toBeCloseTo(130, 2) // 60 kg = 132.3 lb → 130
+  })
+})

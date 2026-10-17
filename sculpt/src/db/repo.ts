@@ -7,6 +7,8 @@ import { buildSession, type PrescribeContext } from '../engine/prescription'
 import { applyProgression, evaluateSets } from '../engine/progression'
 import { detectPRs } from '../engine/prs'
 import { scheduleFor } from '../engine/schedule'
+import { roundLoad } from '../engine/increments'
+import type { Increments, Units } from './types'
 
 export async function getSettings(): Promise<Settings> {
   const s = await db.settings.get('settings')
@@ -140,4 +142,20 @@ export function exerciseLoadLabel(ex: SessionExercise): string {
     case 'bodyweight': return 'Bodyweight'
     default: return 'Weight'
   }
+}
+
+/**
+ * Switch display units. Increments are adopted from the new unit's defaults
+ * (unless `increments` is given) and every stored working load is re-rounded
+ * so prescriptions land on real plates in the new unit.
+ */
+export async function switchUnits(units: Units, increments: Increments): Promise<void> {
+  await updateSettings({ units, increments })
+  const states = await db.exerciseStates.toArray()
+  const next = states.map(st => {
+    if (st.currentLoad == null || st.loadMode === 'height' || st.loadMode === 'bodyweight') return st
+    const def = getExercise(st.exerciseId)
+    return { ...st, currentLoad: roundLoad(st.currentLoad, def, increments, units, st.loadMode) }
+  })
+  if (next.length) await db.exerciseStates.bulkPut(next)
 }
