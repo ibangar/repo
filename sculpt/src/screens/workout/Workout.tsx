@@ -212,7 +212,16 @@ export default function Workout() {
     setFinishOpen(false)
     window.clearTimeout(saveTimer.current)
     dirtyRef.current = false
-    const res = await completeSession(cur, settings)
+    let res
+    try {
+      res = await completeSession(cur, settings)
+    } catch (err) {
+      console.error('completeSession failed', err)
+      dirtyRef.current = true
+      setFinishing(false)
+      alert('Could not save the workout. Check free storage and try again – nothing has been lost.')
+      return
+    }
     sessionRef.current = res.session
     rest.skip()
     try { localStorage.removeItem(`sculpt.rest.${cur.id}`); sessionStorage.removeItem(`sculpt.wu.${cur.id}`) } catch { /* ignore */ }

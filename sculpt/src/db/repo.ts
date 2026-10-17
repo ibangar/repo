@@ -15,11 +15,14 @@ export async function getSettings(): Promise<Settings> {
   return DEFAULT_SETTINGS
 }
 
+/** Read-merge-write inside one transaction so overlapping patches never clobber each other. */
 export async function updateSettings(patch: Partial<Settings>): Promise<Settings> {
-  const cur = await getSettings()
-  const next = { ...cur, ...patch, id: 'settings' as const }
-  await db.settings.put(next)
-  return next
+  return db.transaction('rw', db.settings, async () => {
+    const cur = await getSettings()
+    const next = { ...cur, ...patch, id: 'settings' as const }
+    await db.settings.put(next)
+    return next
+  })
 }
 
 export async function getProgram(): Promise<Program> {

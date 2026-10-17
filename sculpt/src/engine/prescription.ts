@@ -139,7 +139,10 @@ export function swapExercise(session: WorkoutSession, programExerciseId: string,
   const idx = session.exercises.findIndex(e => e.programExerciseId === programExerciseId)
   if (idx < 0) return session
   const old = session.exercises[idx]
-  const next = prescribeExercise(programExercise, state, ctx, { firstCompound: old.warmups.length > 0, exerciseId: newExerciseId, swappedFrom: old.swappedFrom ?? old.exerciseId })
+  // Ramp-ups belong to the first (non-skipped) compound lift of the day, whichever exercise fills that slot.
+  const firstCompoundIdx = session.exercises.findIndex(e => !e.skipped && getExercise(e.exerciseId).category === 'compound')
+  const firstCompound = idx === firstCompoundIdx || old.warmups.length > 0
+  const next = prescribeExercise(programExercise, state, ctx, { firstCompound, exerciseId: newExerciseId, swappedFrom: old.swappedFrom ?? old.exerciseId })
   const exercises = [...session.exercises]
   exercises[idx] = next
   return { ...session, exercises }
