@@ -35,8 +35,11 @@ export default function Compare() {
   // Defaults: A = earliest, B = latest – but never the same photo as the one the user explicitly chose.
   const chosenA = list.find(p => p.id === aId), chosenB = list.find(p => p.id === bId)
   const first = list[0], last = list[list.length - 1]
-  const a = chosenA ?? (chosenB && first?.id === chosenB.id && list.length > 1 ? list[1] : first)
-  const b = chosenB ?? (chosenA && last?.id === chosenA.id && list.length > 1 ? list[list.length - 2] : last)
+  const rawA = chosenA ?? (chosenB && first?.id === chosenB.id && list.length > 1 ? list[1] : first)
+  const rawB = chosenB ?? (chosenA && last?.id === chosenA.id && list.length > 1 ? list[list.length - 2] : last)
+  // Keep "before" before "after" unless the user explicitly picked both sides.
+  const flip = !!rawA && !!rawB && !(chosenA && chosenB) && rawA.takenAt > rawB.takenAt
+  const a = flip ? rawB : rawA, b = flip ? rawA : rawB
   const urlA = useObjectUrl(a?.blob), urlB = useObjectUrl(b?.blob)
 
   if (!photos) return <div className="page" />

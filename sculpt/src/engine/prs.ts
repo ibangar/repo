@@ -25,7 +25,7 @@ export function detectPRs(session: WorkoutSession, ex: SessionExercise, prev: Ex
   if (prev?.calibrated && prev.history.length > 0) {
     const eff = effectiveLoadKg(ex.loadMode, o.bestSet.load, session.bodyweightKg)
     if (o.bestE1rm != null && prev.bestE1rm != null && o.bestE1rm > prev.bestE1rm + 0.01) {
-      prs.push(mk('e1rm', o.bestE1rm, `${formatLoad(eff, units)} × ${o.bestSet.reps} @${o.bestSet.rir} → e1RM ${formatLoad(o.bestE1rm, units)}`))
+      prs.push(mk('e1rm', o.bestE1rm, `${formatLoad(eff, units)} × ${o.bestSet.reps} @${o.bestSet.rir} → e1RM ${formatLoad(Math.round(o.bestE1rm * 10) / 10, units)}`))
     }
     if (ex.loadMode !== 'assisted' && prev.bestLoad != null && o.workingLoad > prev.bestLoad + 0.01) {
       prs.push(mk('load', o.workingLoad, `${formatLoad(o.workingLoad, units)} – heaviest ${def.shortName} yet`))

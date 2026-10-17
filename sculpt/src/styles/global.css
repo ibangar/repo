@@ -136,6 +136,12 @@ img, video, canvas, svg { display: block; max-width: 100%; }
 .btn--sm { min-height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
 .btn--icon { width: var(--tap); padding: 0; border-radius: 50%; }
 .btn--pulse { animation: pulse 2.2s ease-in-out infinite; }
+
+.btn--upper.btn--pulse { animation-name: pulseUpper; }
+@keyframes pulseUpper {
+  0%, 100% { box-shadow: 0 8px 24px rgba(139, 108, 255, 0.35), 0 0 0 0 rgba(139, 108, 255, 0.45); }
+  50% { box-shadow: 0 10px 30px rgba(139, 108, 255, 0.55), 0 0 0 14px rgba(139, 108, 255, 0); }
+}
 @keyframes pulse {
   0%, 100% { box-shadow: 0 8px 24px rgba(255, 77, 125, 0.35), 0 0 0 0 rgba(255, 77, 125, 0.45); }
   50% { box-shadow: 0 10px 30px rgba(255, 77, 125, 0.55), 0 0 0 14px rgba(255, 77, 125, 0); }
@@ -167,7 +173,7 @@ img, video, canvas, svg { display: block; max-width: 100%; }
 .stepper { display: inline-flex; align-items: center; background: var(--surface-2); border-radius: 12px; border: 1px solid var(--line); overflow: hidden; }
 .stepper__btn { width: 44px; height: 48px; font-size: 22px; font-weight: 800; color: var(--text-2); display: grid; place-items: center; transition: background 0.15s; }
 .stepper__btn:active { background: var(--surface-3); }
-.stepper__val { min-width: 64px; text-align: center; font-weight: 800; font-size: 18px; background: transparent; border: 0; outline: none; padding: 0; height: 48px; }
+.stepper__val { width: 76px; min-width: 64px; text-align: center; font-weight: 800; font-size: 18px; background: transparent; border: 0; outline: none; padding: 0; height: 48px; }
 
 /* ───────────────────────────── Nav ───────────────────────────── */
 .nav {
@@ -236,3 +242,4 @@ img, video, canvas, svg { display: block; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+@keyframes spin { to { transform: rotate(360deg); } }
