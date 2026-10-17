@@ -1,3 +1,10 @@
+# This repo
+
+- **`sculpt/`** – Sculpt, a personal workout + progress-tracking PWA (React/Vite/TypeScript, offline, on-device data). See `sculpt/README.md`.
+- Higgsfield CLI integration (below).
+
+---
+
 # Higgsfield CLI integration
 
 Wires the [Higgsfield CLI](https://github.com/higgsfield-ai/cli) (`hf`) into this
