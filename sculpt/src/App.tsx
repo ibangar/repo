@@ -72,7 +72,7 @@ function Shell() {
 
 export default function App() {
   return (
-    <Router>
+    <Router basename={import.meta.env.VITE_TARGET === 'artifact' ? undefined : import.meta.env.BASE_URL.replace(/\/$/, '') || undefined}>
       <Shell />
     </Router>
   )

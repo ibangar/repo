@@ -14,7 +14,15 @@ npm run build        # production build to dist/ (with service worker + manifest
 npm run preview      # serve dist/
 ```
 
-To use it on your phone, host `dist/` on any static HTTPS server (camera access needs HTTPS), open it in Safari, and add it to the Home Screen.
+### Put it on your iPhone
+
+The repo ships a GitHub Actions workflow (`.github/workflows/deploy-sculpt.yml`) that publishes the app to GitHub Pages:
+
+1. Repo **Settings → Pages → Build and deployment → Source: GitHub Actions** (one time).
+2. Merge to the default branch, or run the workflow by hand from the **Actions** tab.
+3. On the iPhone open `https://<owner>.github.io/<repo>/` in **Safari**, tap **Share → Add to Home Screen**.
+
+It then opens full-screen like a native app, works offline, and can use the camera. `npm run build:pages` builds the same thing locally (`BASE_PATH=/repo/`).
 
 ## How the weight logic works
 
