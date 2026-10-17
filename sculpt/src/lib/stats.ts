@@ -30,6 +30,7 @@ export function lastWeekStarts(today: string, n: number): string[] {
 }
 
 const isTrainingDay = (date: string, settings: Settings, program: Program) => {
+  if (daysBetween(settings.programStartDate, date) - settings.scheduleOffset < 0) return false
   const day = scheduleFor(date, settings, program).day
   return day.focus !== 'rest' && day.exercises.length > 0
 }
