@@ -1,5 +1,5 @@
 import type { View } from '../../db/types'
-import type { Anchor, EquipmentDef, Pose } from './Figure'
+import { computeSkeleton, FLOOR_Y, type Anchor, type EquipmentDef, type Pose } from './Figure'
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Keyframe registry. One entry per `animation` key used in data/exercises.ts.
@@ -106,10 +106,10 @@ export const ANIMATIONS: Record<string, ExerciseAnimationDef> = {
 
   /* ───────────── GLUTES / LEGS ───────────── */
   bbHipThrust: {
-    view: 'side', loop: 'cycle', durationMs: 3000, equipment: [{ kind: 'bench', variant: 'hipThrust', x: 14, y: 146, w: 56, h: 8 }, { kind: 'barbell' }],
+    view: 'side', loop: 'cycle', durationMs: 3000, equipment: [{ kind: 'bench', variant: 'hipThrust', x: 14, y: 141, w: 66, h: 8 }, { kind: 'barbell' }],
     ...rep(
-      { torsoLean: -42, hipFlex: 83, kneeFlex: 125, shoulderFlex: 2, elbowFlex: 0, neck: 20, x: 35 },
-      { torsoLean: -85, hipFlex: 2, kneeFlex: 87, shoulderFlex: 2, elbowFlex: 0, neck: 25, squeeze: 1, x: 35 },
+      { torsoLean: -42, hipFlex: 83, kneeFlex: 125, shoulderFlex: 12, elbowFlex: 0, neck: 20, x: 35 },
+      { torsoLean: -85, hipFlex: 2, kneeFlex: 87, shoulderFlex: 14, elbowFlex: 0, neck: 25, squeeze: 1, x: 35 },
       { up: 0.38, hold: 0.18 },
     ),
     labels: { start: 'HIPS DOWN', end: 'SQUEEZE' },
@@ -133,7 +133,7 @@ export const ANIMATIONS: Record<string, ExerciseAnimationDef> = {
     view: 'side', loop: 'cycle', durationMs: 3200, equipment: [{ kind: 'barbell' }],
     ...repFromTop(
       { torsoLean: 0, hipFlex: 0, kneeFlex: 8, ankle: 8, shoulderFlex: 0, elbowFlex: 0, squeeze: 1 },
-      { torsoLean: 85, hipFlex: 100, kneeFlex: 25, ankle: 10, shoulderFlex: 85, elbowFlex: 0, neck: 5 },
+      { torsoLean: 72, hipFlex: 107, kneeFlex: 15, ankle: -20, shoulderFlex: 72, elbowFlex: 0, neck: 5 },
     ),
     labels: { start: 'SQUEEZE', end: 'HINGE' },
   },
@@ -292,4 +292,26 @@ export function glowAt(def: ExerciseAnimationDef, t: number): number {
   const peak = def.peak ?? 0.5
   const d = Math.min(Math.abs(t - peak), Math.abs(t - peak + 1), Math.abs(t - peak - 1))
   return Math.max(0, 1 - d / 0.4)
+}
+
+const frameCache = new Map<ExerciseAnimationDef, string>()
+/** A viewBox cropped to what the animation actually uses (drops empty sky above lying/low lifts). */
+export function frameFor(def: ExerciseAnimationDef): string {
+  const hit = frameCache.get(def)
+  if (hit) return hit
+  let top = Infinity
+  for (const k of def.keyframes) {
+    const sk = computeSkeleton(def.view, k.pose, def.anchor, def.anchorY)
+    top = Math.min(top, sk.head.y - 14, ...sk.arms.map(a => a.hand.y - 10), ...sk.legs.map(l => l.toe.y - 8))
+  }
+  for (const e of def.equipment) {
+    if (e.kind === 'cable') top = Math.min(top, e.anchor[1] - 10)
+    if (e.kind === 'box') top = Math.min(top, FLOOR_Y - e.h - 10)
+    if (e.kind === 'pullupBar' || e.kind === 'pecDeck' || e.kind === 'smithRails') top = Math.min(top, 0)
+  }
+  top = Math.max(-34, Math.min(top, 110))
+  const h = FLOOR_Y + 8 - top
+  const vb = `0 ${Math.round(top)} 200 ${Math.round(h)}`
+  frameCache.set(def, vb)
+  return vb
 }

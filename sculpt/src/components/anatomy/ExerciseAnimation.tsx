@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getExercise } from '../../data/exercises'
 import type { MuscleGroup } from '../../db/types'
 import { Figure, FLOOR_Y, CX } from './Figure'
-import { getAnimation, glowAt, poseAt } from './animations'
+import { frameFor, getAnimation, glowAt, poseAt } from './animations'
 
 export interface ExerciseAnimationProps {
   exerciseId: string
@@ -33,6 +33,8 @@ export function ExerciseAnimation({ exerciseId, size = 160, playing = true, high
   const [visible, setVisible] = useState(true)
   const [t, setT] = useState(frozenT ?? 0)
   const tRef = useRef(frozenT ?? 0)
+  const tickRef = useRef(onTick)
+  tickRef.current = onTick
 
   // Dev helper: /exercises/x?t=0.5 freezes the animation.
   const devT = useMemo(() => {
@@ -72,13 +74,13 @@ export function ExerciseAnimation({ exerciseId, size = 160, playing = true, high
         acc = 0
         const shown = def.loop === 'pingpong' ? (cur <= 1 ? cur : 2 - cur) : cur
         setT(shown)
-        onTick?.(shown)
+        tickRef.current?.(shown)
       }
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [active, def, speed, size, frozen, onTick])
+  }, [active, def, speed, size, frozen])
 
   const pose = poseAt(def, t)
   const glow = glowAt(def, t)
@@ -104,7 +106,7 @@ export function ExerciseAnimation({ exerciseId, size = 160, playing = true, high
       <div aria-hidden style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 60% 55% at 50% 42%, ${lower ? 'rgba(255,77,125,0.16)' : 'rgba(139,108,255,0.16)'}, transparent 70%)` }} />
       <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 90% 30% at 50% 100%, rgba(0,0,0,0.5), transparent 70%)' }} />
       <Figure
-        pose={pose} view={def.view} highlight={hl} glow={glow} equipment={def.equipment} anchor={def.anchor} anchorY={def.anchorY}
+        pose={pose} view={def.view} highlight={hl} glow={glow} equipment={def.equipment} anchor={def.anchor} anchorY={def.anchorY} viewBox={frameFor(def)}
         style={{ width: '100%', height: '100%', opacity: wrapFade, transition: active ? undefined : 'opacity 0.2s' }}
       >
         <line x1={CX - 90} y1={FLOOR_Y + 0.5} x2={CX + 90} y2={FLOOR_Y + 0.5} stroke="rgba(255,255,255,0.07)" strokeWidth={1} />
@@ -112,8 +114,8 @@ export function ExerciseAnimation({ exerciseId, size = 160, playing = true, high
       </Figure>
       {showLabels && (
         <>
-          <span className="eyebrow" style={{ position: 'absolute', left: 14, bottom: 12, opacity: startOp, color: 'var(--text-2)', transition: 'opacity 0.15s' }}>{def.labels?.start ?? 'START'}</span>
-          <span className="eyebrow" style={{ position: 'absolute', right: 14, bottom: 12, opacity: endOp, color: tint, transition: 'opacity 0.15s' }}>{def.labels?.end ?? 'END'}</span>
+          <span className="eyebrow" style={{ position: 'absolute', left: 12, bottom: 12, padding: '5px 10px', borderRadius: 999, background: 'rgba(8,8,13,0.6)', opacity: startOp, color: 'var(--text-2)', transition: 'opacity 0.15s', backdropFilter: 'blur(6px)' }}>{def.labels?.start ?? 'START'}</span>
+          <span className="eyebrow" style={{ position: 'absolute', right: 12, bottom: 12, padding: '5px 10px', borderRadius: 999, background: 'rgba(8,8,13,0.6)', opacity: endOp, color: tint, transition: 'opacity 0.15s', backdropFilter: 'blur(6px)' }}>{def.labels?.end ?? 'END'}</span>
         </>
       )}
     </div>

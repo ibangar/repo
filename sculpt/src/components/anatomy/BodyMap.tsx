@@ -43,7 +43,7 @@ export function BodyMap({ primary, secondary = [], view = 'both', height = 220, 
         <span className="tiny row" style={{ gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 3, background: tint, boxShadow: `0 0 8px ${tint}` }} /> Primary</span>
         <span className="tiny row" style={{ gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 3, background: tint, opacity: 0.45 }} /> Secondary</span>
       </div>
-      <style>{`.bodymap__fig [data-muscle]{transition:fill .3s}.bodymap__glow{animation:bmPulse 2.2s ease-in-out infinite}@keyframes bmPulse{0%,100%{opacity:.75}50%{opacity:1}}`}</style>
+      <style>{`.bodymap__fig [data-muscle]{transition:fill .3s}.bodymap__fig .fig-glow{animation:bmPulse 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}@keyframes bmPulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}`}</style>
     </div>
   )
 }

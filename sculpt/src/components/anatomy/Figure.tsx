@@ -339,7 +339,8 @@ export function computeSkeleton(view: View, pose: Pose, anchor: Anchor = 'foot',
   const lowest = (ls: Leg[]) => Math.max(...ls.flatMap(l => [l.soleHeel.y, l.soleToe.y, l.ankle.y + (view === 'side' ? 0 : L.footH)]))
   if (anchor === 'hand') {
     const h = sk.arms[0].hand
-    dx -= h.x; dy = FLOOR_Y - anchorY - h.y
+    if (view === 'side') dx -= h.x
+    dy = FLOOR_Y - anchorY - h.y
   } else if (anchor === 'hip') {
     dy = FLOOR_Y - p.lift
   } else {
@@ -369,14 +370,14 @@ export function Figure({ pose, view, highlight = {}, glow = 1, equipment = [], a
   const pulse = 0.6 + 0.4 * Math.max(0, Math.min(1, glow))
 
   /** A muscle region: optional glow + fill. */
-  const M = (id: MuscleGroup, d: string, opts: { far?: boolean; lines?: string; fill?: string } = {}) => {
+  const M = (id: MuscleGroup, d: string, opts: { far?: boolean; lines?: string; fill?: string; k?: string } = {}) => {
     const k = Math.max(0, Math.min(1, (highlight[id] ?? 0))) * (chart ? 1 : pulse)
     const col = accentFor(id)
     const baseFill = opts.fill ?? (chart ? (opts.far ? '#20222f' : '#262838') : g(opts.far ? 'mFar' : 'm'))
     return (
-      <g key={id + (opts.far ? 'f' : '')}>
-        {k > 0.02 && <path d={d} fill="none" stroke={col} strokeWidth={chart ? 3.5 : 4.5} strokeLinejoin="round" opacity={0.42 * k} />}
-        {k > 0.02 && <path d={d} fill="none" stroke={col} strokeWidth={1.4} strokeLinejoin="round" opacity={0.6 * k} />}
+      <g key={id + (opts.far ? 'f' : '') + (opts.k ?? '')}>
+        {k > 0.02 && <path className="fig-glow" d={d} fill="none" stroke={col} strokeWidth={chart ? 3.5 : 4.5} strokeLinejoin="round" opacity={0.42 * k} />}
+        {k > 0.02 && <path className="fig-glow" d={d} fill="none" stroke={col} strokeWidth={1.4} strokeLinejoin="round" opacity={0.6 * k} />}
         <path data-muscle={id} d={d} fill={baseFill} stroke={chart ? '#3b3e55' : 'rgba(80,36,22,0.42)'} strokeWidth={0.5} strokeLinejoin="round" />
         {k > 0.02 && <path d={d} fill={col} opacity={0.3 + 0.55 * k} />}
         {opts.lines && <path d={opts.lines} fill="none" stroke={chart ? '#3b3e55' : 'rgba(80,36,22,0.35)'} strokeWidth={0.5} strokeLinecap="round" />}
@@ -493,20 +494,20 @@ export function Figure({ pose, view, highlight = {}, glow = 1, equipment = [], a
         {back ? (
           <>
             {M('lowerBack', F.lowerBack)}
-            {M('lats', F.latsR)}{M('lats', FM.latsL)}
-            {M('upperBack', F.upperBackR)}{M('upperBack', FM.upperBackL)}
+            {M('lats', F.latsR)}{M('lats', FM.latsL, { k: 'L' })}
+            {M('upperBack', F.upperBackR)}{M('upperBack', FM.upperBackL, { k: 'L' })}
             {M('traps', F.traps)}
             <g transform={`translate(8 1) scale(${f1(sq)}) translate(-8 ${f1(-1 - 1.2 * p.squeeze)})`}>{M('glutes', F.glutesR)}</g>
-            <g transform={`translate(-8 1) scale(${f1(sq)}) translate(8 ${f1(-1 - 1.2 * p.squeeze)})`}>{M('glutes', FM.glutesL)}</g>
+            <g transform={`translate(-8 1) scale(${f1(sq)}) translate(8 ${f1(-1 - 1.2 * p.squeeze)})`}>{M('glutes', FM.glutesL, { k: 'L' })}</g>
           </>
         ) : (
           <>
-            {M('obliques', F.obliquesR)}{M('obliques', FM.obliquesL)}
+            {M('obliques', F.obliquesR)}{M('obliques', FM.obliquesL, { k: 'L' })}
             {M('abs', F.abs)}
-            {M('abductors', F.abductorsR)}{M('abductors', FM.abductorsL)}
-            {M('traps', F.trapsFrontR)}{M('traps', FM.trapsFrontL)}
-            {M('chest', F.chestR)}{M('chest', FM.chestL)}
-            {M('upperChest', F.upperChestR)}{M('upperChest', FM.upperChestL)}
+            {M('abductors', F.abductorsR)}{M('abductors', FM.abductorsL, { k: 'L' })}
+            {M('traps', F.trapsFrontR)}{M('traps', FM.trapsFrontL, { k: 'L' })}
+            {M('chest', F.chestR)}{M('chest', FM.chestL, { k: 'L' })}
+            {M('upperChest', F.upperChestR)}{M('upperChest', FM.upperChestL, { k: 'L' })}
           </>
         )}
         {silhouette(F.neck)}
